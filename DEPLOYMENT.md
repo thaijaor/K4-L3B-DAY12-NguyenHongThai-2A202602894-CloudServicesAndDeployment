@@ -1,101 +1,78 @@
 # Thông Tin Deploy — Checkpoint 5
 
-> Điền file này sau khi deploy xong. `pytest tests/test_cp5.py` đọc file này
-> để tìm địa chỉ service của bạn và gọi thử.
->
-> **Chỉ ghi TÊN biến môi trường, tuyệt đối không dán giá trị API key vào đây.**
-> Repo này công khai — dán khóa vào là mất khóa.
+> Chỉ ghi tên biến môi trường, tuyệt đối không ghi giá trị API key.
 
 ## Thông Tin Học Viên
 
 | Mục | Nội dung |
 |-----|----------|
-| Họ và tên | (điền họ tên) |
-| Mã học viên | (điền mã học viên) |
-| Repo | (điền link repo K4-L3B-DAY12-HoVaTen-MSSV-CloudServicesAndDeployment) |
+| Họ và tên | Nguyễn Hồng Thái |
+| Mã học viên | 2A202602894 |
+| Repo | https://github.com/thaijaor/K4-L3B-DAY12-NguyenHongThai-2A202602894-CloudServicesAndDeployment |
 
 ## Service
 
 | Mục | Nội dung |
 |-----|----------|
-| Public URL | https://TODO-thay-bang-url-that.up.railway.app |
-| Platform | Railway / Render / Cloud Run — (điền platform bạn dùng) |
-| Ngày deploy | (điền ngày) |
+| Public URL | https://agent-production-5750.up.railway.app |
+| Platform | Railway |
+| Project | K4-L3B-D12-CloudDeploy |
+| Environment | production |
+| Ngày deploy | 2026-09-29 |
 
 ## Biến Môi Trường Đã Set Trên Cloud
 
-Ghi tên biến và **nguồn giá trị**, không ghi giá trị:
-
-| Biến | Đã set | Ghi chú |
-|------|--------|---------|
-| `PORT` | ✅ | platform tự gán |
-| `AGENT_API_KEY` | ✅ | đặt trong dashboard, không nằm trong repo |
-| `REDIS_URL` | ✅ | (điền: Redis add-on của platform / Upstash / ...) |
-| `RATE_LIMIT_PER_MINUTE` | ✅ | 10 |
-| `MONTHLY_BUDGET_USD` | ✅ | 10.0 |
-| `LOG_LEVEL` | ✅ | INFO |
-
-## Lệnh Kiểm Tra
-
-Thay `<URL>` bằng Public URL ở trên:
-
-```bash
-# 1. Liveness — mong đợi 200 {"status":"ok"}
-curl -i <URL>/health
-
-# 2. Readiness — mong đợi 200 {"status":"ready"} (đã nối được Redis)
-curl -i <URL>/ready
-
-# 3. Không có API key — mong đợi 401
-curl -i -X POST <URL>/ask \
-  -H "Content-Type: application/json" \
-  -d '{"question":"Hello"}'
-
-# 4. Có API key — mong đợi 200 kèm câu trả lời
-curl -i -X POST <URL>/ask \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: $AGENT_API_KEY" \
-  -H "X-User-Id: sv-test" \
-  -d '{"question":"Deploy là gì?"}'
-
-# 5. Rate limit — gọi 15 lần, những lần cuối phải trả 429
-for i in $(seq 1 15); do
-  curl -s -o /dev/null -w "%{http_code} " -X POST <URL>/ask \
-    -H "Content-Type: application/json" \
-    -H "X-API-Key: $AGENT_API_KEY" \
-    -H "X-User-Id: sv-test" \
-    -d '{"question":"test"}'
-done; echo
-```
+| Biến | Đã set | Nguồn |
+|------|--------|-------|
+| `PORT` | Có | Railway tự gán |
+| `AGENT_API_KEY` | Có | Railway service variable; giá trị nằm trong `.env` local bị gitignore |
+| `REDIS_URL` | Có | `redis://redis.railway.internal:6379/0`, Redis service cùng project |
+| `RATE_LIMIT_PER_MINUTE` | Có | `10` |
+| `MONTHLY_BUDGET_USD` | Có | `10.0` |
+| `LOG_LEVEL` | Có | `INFO` |
 
 ## Kết Quả Chạy Thật
 
-Dán output của các lệnh trên vào đây:
-
+```text
+GET /health                         200  {"status":"ok","service":"day12-agent","version":"1.0.0"}
+GET /ready                          200  {"status":"ready","redis":true}
+POST /ask không có API key          401
+POST /ask có API key                200
+POST /ask lần 1, cùng X-User-Id     history_length=0
+POST /ask lần 2, cùng X-User-Id     history_length=2
 ```
-(điền output)
+
+Railway build và chạy image thành công; Redis service cũng ở trạng thái `SUCCESS`.
+
+## Kiểm Tra Thủ Công
+
+```bash
+curl -i https://agent-production-5750.up.railway.app/health
+curl -i https://agent-production-5750.up.railway.app/ready
+curl -i -X POST https://agent-production-5750.up.railway.app/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question":"Hello"}'
 ```
 
-## Ảnh Chụp Màn Hình
+Request `/ask` hợp lệ cần thêm hai header `X-API-Key` và `X-User-Id`. Không đưa giá trị key vào lệnh được commit hoặc tài liệu công khai.
 
-Đặt ảnh trong thư mục `screenshots/`:
+## CI/CD Trên GitHub Actions
 
-- `screenshots/dashboard.png` — trang quản lý service trên platform
-- `screenshots/health.png` — kết quả gọi `/health` từ trình duyệt hoặc curl
+Workflow `.github/workflows/ci.yml` chạy test và build Docker khi push hoặc mở pull request. Deploy job chỉ chạy trên push vào `main`, sau khi test và build thành công.
+
+Để bật deploy từ GitHub Actions, thêm secret `RAILWAY_TOKEN` (project token) và các repository variables sau:
+
+| Repository variable | Giá trị |
+|---------------------|---------|
+| `RAILWAY_PROJECT_ID` | `ec1dfd07-0f1a-4f90-9c57-ca77b2a8474b` |
+| `RAILWAY_ENVIRONMENT_ID` | `2210a3ad-cee6-4c0b-8dde-21a01ea3f2a8` |
+| `RAILWAY_SERVICE_ID` | `cf6f4935-e7a1-4eb5-881d-425555db4d85` |
+| `PUBLIC_URL` | `https://agent-production-5750.up.railway.app` |
+
+Không commit Railway token hoặc giá trị API key.
 
 ---
 
 ## Nếu Dùng Phương Án Dự Phòng
 
-Không đăng ký được tài khoản cloud? Vẫn nộp được bài, nhưng CP5 tối đa 60% điểm:
-
-1. Đặt `LOCAL_FALLBACK=true` trong `.env`
-2. Chạy `docker compose up -d` rồi kiểm tra `docker compose ps`
-3. Chụp màn hình vào `screenshots/`
-4. Chạy `pytest tests/test_cp5.py -v` — bộ test sẽ tự chuyển sang kiểm tra
-   `http://localhost:8000`
-5. Ghi rõ lý do không deploy được vào phần dưới đây:
-
-```
-(điền lý do nếu dùng phương án dự phòng, ngược lại xóa mục này)
-```
+Không áp dụng. Service đã deploy trên Railway và các endpoint `/health`, `/ready`, `/ask` đã được kiểm tra trực tiếp.
