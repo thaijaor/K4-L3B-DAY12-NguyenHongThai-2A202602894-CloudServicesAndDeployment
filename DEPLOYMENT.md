@@ -58,9 +58,9 @@ Request `/ask` hợp lệ cần thêm hai header `X-API-Key` và `X-User-Id`. Kh
 
 ## CI/CD Trên GitHub Actions
 
-Workflow `.github/workflows/ci.yml` chạy test và build Docker khi push hoặc mở pull request. Railway GitHub App được cài cho repo; service `Agent` theo dõi nhánh `main`, bật Auto Deploy và Wait for CI. Railway đợi GitHub Actions hoàn tất thành công rồi mới deploy; workflow lỗi thì deployment bị bỏ qua.
+Workflow `.github/workflows/ci.yml` chạy test và build Docker khi push hoặc mở pull request. Railway GitHub App được cài cho repo; service `Agent` theo dõi nhánh `main`, với Auto Deploy và Wait for CI bật trong dashboard. Để xác nhận CI gate thực sự chặn deploy, so sánh thời điểm Actions hoàn tất với lúc Railway bắt đầu deployment. Ở commit `481d80a`, Railway bắt đầu deploy lúc `04:18:41Z` trong khi Actions chỉ hoàn tất lúc `04:19:32Z`, nên lần đó CI gate chưa có hiệu lực.
 
-Đây là cách deploy đang dùng, không cần GitHub Actions secret hay repository variable. Commit `aaeba88` đã qua test/build và deploy thành công lên Railway (deployment `d9af13fa-b038-4a88-bd9f-d16fc8a9d015`). `/health` trả `200`; `/ready` trả `200` với Redis sẵn sàng.
+Đây là cách deploy đang dùng, không cần GitHub Actions secret hay repository variable. Commit `481d80a` đã qua test/build và deploy thành công lên Railway (deployment `d8dd6beb-658e-4f49-b12b-061702da2e85`). `/health` trả `200`; `/ready` trả `200` khi Redis sẵn sàng. Push kế tiếp được dùng để kiểm tra lại thứ tự CI/deploy sau khi quyền GitHub App được cập nhật.
 
 Workflow giữ một job **Optional Railway CLI deploy** cho phương án deploy trực tiếp từ GitHub Actions. Job này chỉ chạy khi khai báo đủ các biến bên dưới; hiện tại nó được bỏ qua để tránh chạy song song với Railway Auto Deploy. Không bật cả hai cách cùng lúc.
 
