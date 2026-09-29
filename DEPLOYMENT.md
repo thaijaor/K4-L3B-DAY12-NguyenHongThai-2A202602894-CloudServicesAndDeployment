@@ -46,7 +46,11 @@ Railway build và chạy image thành công; Redis service cũng ở trạng th�
 
 ## Ảnh Minh Chứng CP5
 
-Ảnh Railway production ngày 2026-09-29: deployment `64e24d34` đang Active, Redis Online; log ghi nhận `/health` và `/ready` trả `200`, `/ask` thiếu API key trả `401`, và `/docs` cùng `/openapi.json` trả `200`.
+Ảnh Build Logs của deployment `64e24d34` ghi nhận Docker image được build và push thành công (61.5 MB). Deployment này sau đó được thay thế bởi deployment mới hơn nên Railway hiện hiển thị `Removed`; trạng thái đó không có nghĩa là bước build thất bại.
+
+![Bằng chứng CP5: Railway build logs](screenshots/cp5-railway-build-logs.png)
+
+Ảnh runtime được chụp khi deployment `64e24d34` đang Active và Redis Online. Log ghi nhận `/health` và `/ready` trả `200`, `/ask` thiếu API key trả `401`, và `/docs` cùng `/openapi.json` trả `200`.
 
 ![Railway deployment và runtime logs](screenshots/cp5-railway-deployment-logs.png)
 

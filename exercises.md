@@ -51,6 +51,8 @@ Hai request liên tiếp tới Railway với cùng `X-User-Id` trả `history_le
 
 ### Câu 10 — Deploy thật (CP5)
 
-Khi tạo Railway project, lần đầu tên dài theo tên repo bị từ chối với thông báo `Project names must be between 1 and 32 characters.` Mình đổi tên project thành `K4-L3B-D12-CloudDeploy` rồi tạo lại thành công. Build/deploy ứng dụng sau đó thành công; `/health` và `/ready` đều trả 200.
+Khi tạo Railway project, lần đầu tên dài theo tên repo bị từ chối với thông báo `Project names must be between 1 and 32 characters.` Mình đổi tên project thành `K4-L3B-D12-CloudDeploy` rồi tạo lại thành công. Build/deploy ứng dụng sau đó thành công; `/health` và `/ready` đều trả 200. Build Logs cho thấy image 61.5 MB được push thành công; deployment trong ảnh đã được thay thế bởi deployment mới hơn.
+
+![Bằng chứng CP5: Railway build logs](screenshots/cp5-railway-build-logs.png)
 
 ![Bằng chứng CP5: Railway deployment và runtime logs](screenshots/cp5-railway-deployment-logs.png)
