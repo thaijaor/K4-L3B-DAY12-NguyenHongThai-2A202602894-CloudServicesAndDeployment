@@ -44,6 +44,12 @@ POST /ask lần 2, cùng X-User-Id     history_length=2
 
 Railway build và chạy image thành công; Redis service cũng ở trạng thái `SUCCESS`.
 
+## Ảnh Minh Chứng CP5
+
+Ảnh Railway production ngày 2026-09-29: deployment `64e24d34` đang Active, Redis Online; log ghi nhận `/health` và `/ready` trả `200`, `/ask` thiếu API key trả `401`, và `/docs` cùng `/openapi.json` trả `200`.
+
+![Railway deployment và runtime logs](screenshots/cp5-railway-deployment-logs.png)
+
 ## Kiểm Tra Thủ Công
 
 ```bash
