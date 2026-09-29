@@ -1,4 +1,4 @@
-name: CI and Railway deploy
+name: CI and Railway Auto Deploy
 
 on:
   push:
@@ -7,6 +7,9 @@ on:
 
 permissions:
   contents: read
+
+# Railway's GitHub integration deploys main after this workflow passes
+# when Auto Deploy and Wait for CI are enabled in the service settings.
 
 jobs:
   test:
@@ -53,7 +56,7 @@ jobs:
           docker image inspect --format='{{.Size}}' day12-agent:${{ github.sha }} | awk '{printf "Multi-stage production: %.1f MiB\n", $1/1048576}'
 
   deploy:
-    name: Deploy to Railway
+    name: Optional Railway CLI deploy
     needs: [test, build]
     if: >-
       github.ref == 'refs/heads/main' &&
