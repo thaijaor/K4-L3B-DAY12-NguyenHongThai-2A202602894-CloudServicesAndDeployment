@@ -8,21 +8,20 @@ on:
 permissions:
   contents: read
 
-# Railway's GitHub integration deploys main after this workflow passes
-# when Auto Deploy and Wait for CI are enabled in the service settings.
+# Railway's GitHub integration handles production auto-deploys.
 
 jobs:
   test:
     name: Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       AGENT_API_KEY: ci-dummy-key
       REDIS_URL: fake://
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           cache: pip
@@ -33,10 +32,10 @@ jobs:
 
   build:
     name: Build Docker image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Measure original single-stage image
         run: |
           cat > "$RUNNER_TEMP/Dockerfile.single-stage" <<'EOF'
@@ -64,12 +63,12 @@ jobs:
       vars.RAILWAY_PROJECT_ID != '' &&
       vars.RAILWAY_ENVIRONMENT_ID != '' &&
       vars.RAILWAY_SERVICE_ID != ''
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: "20"
+          node-version: "22"
       - name: Install Railway CLI
         run: npm install --global @railway/cli
       - name: Link Railway project and service
